@@ -1,75 +1,63 @@
 const express = require('express');
-const cors = require('cors');
-const dotenv = require('dotenv');
-const helmet = require('helmet');
-const morgan = require('morgan');
-const rateLimit = require('express-ratelimit');
-const mongoose = require('mongoose');
-
-// Load environment variables
-dotenv.config();
-
-// Initialize Express app
 const app = express();
 
-// Middleware
-app.use(helmet());
-app.use(morgan('combined'));
-app.use(express.json({ limit: '10mb' }));
-app.use(express.urlencoded({ limit: '10mb', extended: true }));
+app.use(express.static('public'));
+app.use(express.json());
 
-// CORS Configuration
-app.use(cors({
-  origin: process.env.FRONTEND_URL || 'http://localhost:3000',
-  credentials: true,
-  optionsSuccessStatus: 200
-}));
+// Simple in-memory chat storage
+const chats = {};
 
-// Rate Limiting
-const limiter = rateLimit({
-  windowMs: parseInt(process.env.RATE_LIMIT_WINDOW_MS) || 900000,
-  max: parseInt(process.env.RATE_LIMIT_MAX_REQUESTS) || 100,
-  message: 'Too many requests to JOSHVA, please try again later'
-});
+// India Info Database
+const indiaInfo = {
+  'geography': 'India is the 7th largest country in the world with 1.4 billion people. It has 28 states and 8 union territories. The capital is New Delhi.',
+  'history': 'India got independence on August 15, 1947. It was under British rule for 200 years. Mahatma Gandhi led the independence movement.',
+  'culture': 'India has diverse culture with Hinduism, Buddhism, Islam, Sikhism. Diwali, Holi are major festivals. Classical dances like Bharatanatyam are famous.',
+  'food': 'Indian food is world famous. Biryani, Samosa, Butter Chicken, Paneer Tikka are popular. Each region has unique cuisine.',
+  'tourism': 'Taj Mahal in Agra is most famous. Other places: Jaipur, Kerala, Goa, Varanasi. India attracts millions of tourists yearly.',
+  'sports': 'Cricket is most popular. India hosted Cricket World Cup. Kabaddi, Badminton, Wrestling also popular. Sachin Tendulkar is cricket legend.',
+  'economy': 'India has 5th largest economy. IT industry very strong - TCS, Infosys, Wipro are big companies. Agriculture is major sector.',
+  'people': 'India has 1.4 billion people. 22 official languages. Hindi and English widely spoken. Indians known for hard work and innovation.'
+};
 
-app.use(limiter);
+// Chat API
+app.post('/api/chat', (req, res) => {
+  const { message, id } = req.body;
+  
+  if (!message) {
+    return res.json({ error: 'No message' });
+  }
 
-// Database Connection
-mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/joshva-chatbot', {
-  useNewUrlParser: true,
-  useUnifiedTopology: true
-})
-.then(() => console.log('✅ JOSHVA Database Connected'))
-.catch(err => console.log('❌ JOSHVA Database Connection Error:', err));
+  // Create chat history if not exists
+  if (!chats[id]) {
+    chats[id] = [];
+  }
 
-// Routes
-app.use('/api/chat', require('./routes/chat'));
-app.use('/api/india', require('./routes/india'));
-app.use('/api/health', require('./routes/health'));
+  // Store user message
+  chats[id].push({ role: 'user', text: message });
 
-// Error handling middleware
-app.use((err, req, res, next) => {
-  console.error('JOSHVA Error:', err);
-  res.status(err.status || 500).json({
-    success: false,
-    message: err.message || 'Internal Server Error',
-    error: process.env.NODE_ENV === 'development' ? err : {}
+  // Generate AI response
+  let response = 'Tell me more! Ask about: Geography, History, Culture, Food, Tourism, Sports, Economy, or People of India';
+  
+  const msg = message.toLowerCase();
+  
+  for (let key in indiaInfo) {
+    if (msg.includes(key)) {
+      response = indiaInfo[key];
+      break;
+    }
+  }
+
+  // Store AI response
+  chats[id].push({ role: 'bot', text: response });
+
+  res.json({ 
+    response: response,
+    id: id,
+    history: chats[id]
   });
 });
 
-// 404 handler
-app.use((req, res) => {
-  res.status(404).json({
-    success: false,
-    message: 'JOSHVA endpoint not found'
-  });
+app.listen(5000, () => {
+  console.log('\n✅ JOSHVA is running!\n');
+  console.log('🌐 Open: http://localhost:5000\n');
 });
-
-// Start Server
-const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => {
-  console.log(`🤖 JOSHVA Server running on http://localhost:${PORT}`);
-  console.log(`📱 Visit http://localhost:3000 to chat with JOSHVA`);
-});
-
-module.exports = app;

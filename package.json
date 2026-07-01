@@ -1,23 +1,11 @@
 {
-  "name": "joshva-unified-chatbot",
+  "name": "joshva",
   "version": "1.0.0",
-  "description": "JOSHVA - Complete AI India Chatbot (Unified Backend + Frontend)",
-  "main": "joshva-unified.js",
+  "main": "server.js",
   "scripts": {
-    "start": "node joshva-unified.js",
-    "dev": "nodemon joshva-unified.js"
+    "start": "node server.js"
   },
-  "keywords": ["joshva", "chatbot", "india", "ai"],
-  "author": "joshva",
-  "license": "MIT",
   "dependencies": {
-    "express": "^4.18.2",
-    "cors": "^2.8.5",
-    "dotenv": "^16.0.3",
-    "mongoose": "^7.0.0",
-    "helmet": "^7.0.0"
-  },
-  "devDependencies": {
-    "nodemon": "^2.0.20"
+    "express": "^4.18.2"
   }
 }
