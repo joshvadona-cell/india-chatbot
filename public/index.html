@@ -1,0 +1,432 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🤖 JOSHVA - Your AI Guide to India</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: #FF9933;
+            --secondary: #138808;
+            --tertiary: #1f4788;
+            --bg: #f5f5f5;
+            --white: #ffffff;
+            --text: #1a1a1a;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: var(--bg);
+            color: var(--text);
+        }
+
+        .container {
+            display: flex;
+            height: 100vh;
+        }
+
+        .sidebar {
+            width: 280px;
+            background: linear-gradient(180deg, #1a1a1a 0%, #2a2a2a 100%);
+            color: white;
+            padding: 20px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 2px 0 8px rgba(0, 0, 0, 0.2);
+        }
+
+        .sidebar h2 {
+            font-size: 24px;
+            margin-bottom: 10px;
+            color: var(--primary);
+            font-weight: 700;
+        }
+
+        .sidebar p {
+            font-size: 12px;
+            opacity: 0.8;
+            margin-bottom: 20px;
+        }
+
+        .new-chat-btn {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            border: none;
+            padding: 12px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            margin-bottom: 20px;
+            transition: transform 0.3s;
+            font-size: 14px;
+        }
+
+        .new-chat-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(255, 153, 51, 0.3);
+        }
+
+        .categories h3 {
+            font-size: 12px;
+            text-transform: uppercase;
+            color: var(--primary);
+            margin-bottom: 10px;
+            letter-spacing: 1px;
+        }
+
+        .category-btn {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: white;
+            padding: 10px;
+            border-radius: 6px;
+            cursor: pointer;
+            margin-bottom: 8px;
+            transition: all 0.3s;
+            text-align: left;
+            font-size: 13px;
+        }
+
+        .category-btn:hover {
+            background: rgba(255, 153, 51, 0.2);
+            border-color: var(--primary);
+            transform: translateX(5px);
+        }
+
+        .sidebar-footer {
+            margin-top: auto;
+            padding-top: 20px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            text-align: center;
+            font-size: 12px;
+        }
+
+        .main {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            background: var(--white);
+        }
+
+        .header {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            padding: 20px;
+            text-align: center;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .header h1 {
+            font-size: 28px;
+            margin-bottom: 5px;
+            font-weight: 700;
+        }
+
+        .header p {
+            font-size: 14px;
+            opacity: 0.9;
+        }
+
+        .chat-area {
+            flex: 1;
+            overflow-y: auto;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .welcome {
+            text-align: center;
+            margin: auto;
+            color: #666;
+        }
+
+        .welcome h2 {
+            font-size: 32px;
+            color: var(--primary);
+            margin-bottom: 15px;
+            font-weight: 700;
+        }
+
+        .welcome-list {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+            max-width: 400px;
+            margin: 20px auto;
+        }
+
+        .welcome-item {
+            background: var(--bg);
+            padding: 12px;
+            border-radius: 8px;
+            border-left: 4px solid var(--secondary);
+            font-weight: 500;
+        }
+
+        .message {
+            display: flex;
+            gap: 12px;
+            align-items: flex-end;
+            animation: slideIn 0.3s;
+        }
+
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .message.user {
+            justify-content: flex-end;
+        }
+
+        .avatar {
+            font-size: 24px;
+            min-width: 32px;
+            text-align: center;
+        }
+
+        .message.user .avatar {
+            order: 2;
+        }
+
+        .bubble {
+            max-width: 70%;
+            padding: 12px 16px;
+            border-radius: 12px;
+            font-size: 14px;
+            line-height: 1.5;
+        }
+
+        .message.user .bubble {
+            background: var(--primary);
+            color: white;
+            border-bottom-right-radius: 4px;
+            order: 1;
+        }
+
+        .message.assistant .bubble {
+            background: var(--bg);
+            color: var(--text);
+            border-bottom-left-radius: 4px;
+        }
+
+        .label {
+            font-size: 11px;
+            font-weight: 600;
+            opacity: 0.7;
+            display: block;
+            margin-bottom: 4px;
+        }
+
+        .input-area {
+            padding: 20px;
+            border-top: 1px solid #eee;
+            display: flex;
+            gap: 10px;
+            background: var(--white);
+        }
+
+        .input-area input {
+            flex: 1;
+            border: 1px solid #ddd;
+            border-radius: 24px;
+            padding: 12px 16px;
+            font-size: 14px;
+            font-family: 'Poppins', sans-serif;
+            outline: none;
+            transition: border-color 0.3s;
+        }
+
+        .input-area input:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 2px rgba(255, 153, 51, 0.1);
+        }
+
+        .input-area button {
+            background: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 24px;
+            padding: 12px 24px;
+            cursor: pointer;
+            font-size: 18px;
+            transition: all 0.3s;
+            font-weight: 600;
+        }
+
+        .input-area button:hover:not(:disabled) {
+            background: var(--secondary);
+            transform: translateY(-2px);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .input-area button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .loading {
+            color: #666;
+            font-style: italic;
+            padding: 12px;
+        }
+
+        @media (max-width: 768px) {
+            .sidebar {
+                display: none;
+            }
+            .message .bubble {
+                max-width: 85%;
+            }
+            .header h1 {
+                font-size: 20px;
+            }
+            .welcome h2 {
+                font-size: 24px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- SIDEBAR -->
+        <div class="sidebar">
+            <h2>🤖 JOSHVA</h2>
+            <p>India AI Guide</p>
+            <button class="new-chat-btn" onclick="newChat()">➕ New Chat</button>
+            
+            <div class="categories">
+                <h3>Explore India</h3>
+                <button class="category-btn" onclick="askCategory('Tell me about geography of India')">🗺️ Geography</button>
+                <button class="category-btn" onclick="askCategory('Tell me about history of India')">📚 History</button>
+                <button class="category-btn" onclick="askCategory('Tell me about Indian culture')">🎭 Culture</button>
+                <button class="category-btn" onclick="askCategory('Tell me about Indian tourism')">✈️ Tourism</button>
+                <button class="category-btn" onclick="askCategory('Tell me about Indian food')">🍛 Food</button>
+                <button class="category-btn" onclick="askCategory('Tell me about sports in India')">🏏 Sports</button>
+                <button class="category-btn" onclick="askCategory('Tell me about Indian economy')">💼 Economy</button>
+                <button class="category-btn" onclick="askCategory('Tell me about Indian people')">👥 People</button>
+            </div>
+
+            <div class="sidebar-footer">
+                <p>JOSHVA</p>
+                <small>Made with ❤️ by Joshva</small>
+                <small>© 2024</small>
+            </div>
+        </div>
+
+        <!-- MAIN CHAT -->
+        <div class="main">
+            <div class="header">
+                <h1>🤖 JOSHVA</h1>
+                <p>Your Personal AI Guide to India</p>
+            </div>
+
+            <div class="chat-area" id="chatArea">
+                <div class="welcome">
+                    <h2>Welcome to JOSHVA! 👋</h2>
+                    <p>Your Personal AI Guide to India</p>
+                    <div class="welcome-list">
+                        <div class="welcome-item">🗺️ Geography</div>
+                        <div class="welcome-item">📚 History</div>
+                        <div class="welcome-item">🎭 Culture</div>
+                        <div class="welcome-item">🍛 Food</div>
+                        <div class="welcome-item">✈️ Tourism</div>
+                        <div class="welcome-item">🏏 Sports</div>
+                        <div class="welcome-item">💼 Economy</div>
+                        <div class="welcome-item">👥 People</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="input-area">
+                <input type="text" id="messageInput" placeholder="Ask JOSHVA anything about India..." onkeypress="if(event.key==='Enter')sendMessage()">
+                <button onclick="sendMessage()" id="sendBtn">✈️</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let conversationId = null;
+        const API = '/api';
+
+        async function sendMessage() {
+            const input = document.getElementById('messageInput');
+            const message = input.value.trim();
+            if (!message) return;
+
+            // Add user message
+            addMessage(message, 'user');
+            input.value = '';
+            document.getElementById('sendBtn').disabled = true;
+
+            // Show loading
+            const loading = document.createElement('div');
+            loading.className = 'loading';
+            loading.textContent = '⏳ JOSHVA is thinking...';
+            document.getElementById('chatArea').appendChild(loading);
+
+            try {
+                const response = await fetch(`${API}/chat/message`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ message, conversationId })
+                });
+
+                const data = await response.json();
+                loading.remove();
+
+                if (data.success) {
+                    conversationId = data.conversationId;
+                    addMessage(data.response, 'assistant');
+                } else {
+                    addMessage('Sorry, error occurred. Please try again.', 'assistant');
+                }
+            } catch (error) {
+                console.error(error);
+                loading.remove();
+                addMessage('Connection error. Please check if server is running.', 'assistant');
+            }
+            document.getElementById('sendBtn').disabled = false;
+        }
+
+        function addMessage(text, role) {
+            const msg = document.createElement('div');
+            msg.className = `message ${role}`;
+            msg.innerHTML = `
+                <div class="avatar">${role === 'user' ? '👤' : '🤖'}</div>
+                <div class="bubble">
+                    <span class="label">${role === 'user' ? 'You' : 'JOSHVA'}</span>
+                    <div>${text}</div>
+                </div>
+            `;
+            document.getElementById('chatArea').appendChild(msg);
+            document.getElementById('chatArea').scrollTop = document.getElementById('chatArea').scrollHeight;
+        }
+
+        function newChat() {
+            conversationId = null;
+            document.getElementById('chatArea').innerHTML = `
+                <div class="welcome">
+                    <h2>New Chat Started! 👋</h2>
+                    <p>Ask me anything about India</p>
+                </div>
+            `;
+        }
+
+        function askCategory(question) {
+            document.getElementById('messageInput').value = question;
+            sendMessage();
+        }
+    </script>
+</body>
+</html>
